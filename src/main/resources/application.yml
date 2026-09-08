@@ -28,11 +28,11 @@ servicedesk:
     access-token-ttl: ${SERVICEDESK_JWT_ACCESS_TTL:PT15M}
     refresh-token-ttl: ${SERVICEDESK_JWT_REFRESH_TTL:P7D}
   booking:
-    business-hours-start: "08:00"
-    business-hours-end: "20:00"
+    zone: Europe/Warsaw
     min-lead-time: PT1H
     max-advance-booking: P60D
     late-cancellation-window: PT24H
+    slot-granularity: PT15M
   pricing:
     max-total-discount-percentage: 25.00
     invoice-tax-rate: 0.230

@@ -17,8 +17,8 @@ test suite that runs against a real PostgreSQL instance.
 | `catalog` — service categories & offerings, ADMIN-managed | done |
 | `resources` — bookable resources (rooms / stations / …) | done |
 | `staff` — employees, weekly hours, time off, skill assignment | done |
-| `scheduling` — appointments, availability, overlap protection | planned |
-| `pricing` — loyalty tiers, time-based rules, quote calculation | planned |
+| `scheduling` — appointments, availability, overlap protection | done |
+| `pricing` — loyalty tiers, time-based rules, quote calculation | seam only |
 | `billing` — invoices, payments | planned |
 
 ## Tech stack
@@ -88,13 +88,18 @@ erDiagram
     invoices     ||--o{ payments : "settled by"
 ```
 
-Concurrency strategy for bookings (planned, `scheduling` module):
+Concurrency strategy for bookings (`scheduling` module):
 
-1. Pessimistic lock (`SELECT ... FOR UPDATE`) on the employee / resource row during the booking
-   critical section.
-2. PostgreSQL `EXCLUDE USING gist` constraint on `appointments` as a safety net — overlapping
-   time ranges for the same employee or resource are rejected at the database level.
-3. Optimistic locking (`@Version`) for reschedule / status-change / payment flows.
+1. Pessimistic lock (`SELECT ... FOR UPDATE`) on the employee and resource rows during the
+   booking critical section, so concurrent bookings for the same provider serialize and the
+   loser gets a friendly `409`.
+2. PostgreSQL `EXCLUDE USING gist` constraint on `appointments` (needs the `btree_gist`
+   extension) as the backstop — overlapping `tstzrange` values for the same employee or
+   resource are rejected at the database level and translated to `409 slot-unavailable`.
+3. Optimistic locking (`@Version`) for reschedule and status-change flows.
+
+`ConcurrentBookingIntegrationTest` starts two threads on the same slot and asserts exactly one
+booking is created.
 
 ## Running the app
 

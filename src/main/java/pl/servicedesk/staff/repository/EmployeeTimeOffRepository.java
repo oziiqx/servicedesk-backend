@@ -13,4 +13,7 @@ public interface EmployeeTimeOffRepository extends JpaRepository<EmployeeTimeOff
     Optional<EmployeeTimeOff> findByIdAndEmployeeId(Long id, Long employeeId);
 
     boolean existsByEmployeeIdAndStartsAtLessThanAndEndsAtGreaterThan(Long employeeId, Instant end, Instant start);
+
+    List<EmployeeTimeOff> findByEmployeeIdAndStartsAtLessThanAndEndsAtGreaterThan(
+            Long employeeId, Instant end, Instant start);
 }

@@ -72,6 +72,18 @@ public abstract class AbstractIntegrationTest {
         return "Bearer " + jwtService.issueAccessToken(AuthenticatedUser.forLogin(user)).value();
     }
 
+    protected void registerClient(String email, String password) throws Exception {
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "email", email,
+                                "password", password,
+                                "firstName", "Test",
+                                "lastName", "Client",
+                                "marketingConsent", false))))
+                .andExpect(status().isCreated());
+    }
+
     protected String loginAndGetBearer(String email, String password) throws Exception {
         MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

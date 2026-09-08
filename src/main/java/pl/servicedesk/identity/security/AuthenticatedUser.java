@@ -37,6 +37,10 @@ public final class AuthenticatedUser implements UserDetails {
         return id;
     }
 
+    public boolean hasRole(String role) {
+        return authorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_" + role));
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
