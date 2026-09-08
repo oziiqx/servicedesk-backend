@@ -1,0 +1,6 @@
+servicedesk:
+  jwt:
+    secret: test-secret-that-is-definitely-long-enough-for-hs256-0123456789
+    issuer: servicedesk-test
+    access-token-ttl: PT15M
+    refresh-token-ttl: P7D

@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: ${SERVICEDESK_DB_URL}
+    username: ${SERVICEDESK_DB_USERNAME}
+    password: ${SERVICEDESK_DB_PASSWORD}

@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: servicedesk-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-servicedesk}
+      POSTGRES_USER: ${POSTGRES_USER:-servicedesk}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-servicedesk}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - servicedesk-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-servicedesk} -d ${POSTGRES_DB:-servicedesk}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    container_name: servicedesk-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SERVICEDESK_DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-servicedesk}
+      SERVICEDESK_DB_USERNAME: ${POSTGRES_USER:-servicedesk}
+      SERVICEDESK_DB_PASSWORD: ${POSTGRES_PASSWORD:-servicedesk}
+      SERVICEDESK_JWT_SECRET: ${SERVICEDESK_JWT_SECRET:-change-me-in-production-0123456789abcdef0123456789abcdef}
+    ports:
+      - "8080:8080"
+
+volumes:
+  servicedesk-db-data:
