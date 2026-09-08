@@ -29,19 +29,12 @@ public class Client extends AuditableEntity {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @Column(name = "loyalty_tier", length = 20)
-    private String loyaltyTier;
-
     @Column(name = "marketing_consent", nullable = false)
     private boolean marketingConsent;
 
     public Client(User user, boolean marketingConsent) {
         this.user = user;
         this.marketingConsent = marketingConsent;
-    }
-
-    public void assignLoyaltyTier(String tierName) {
-        this.loyaltyTier = tierName;
     }
 
     public void updateMarketingConsent(boolean consent) {

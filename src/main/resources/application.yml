@@ -27,6 +27,11 @@ servicedesk:
     issuer: servicedesk
     access-token-ttl: ${SERVICEDESK_JWT_ACCESS_TTL:PT15M}
     refresh-token-ttl: ${SERVICEDESK_JWT_REFRESH_TTL:P7D}
+  bootstrap:
+    admin-email: ${SERVICEDESK_ADMIN_EMAIL:admin@servicedesk.local}
+    admin-password: ${SERVICEDESK_ADMIN_PASSWORD:ChangeMe!123}
+    admin-first-name: System
+    admin-last-name: Administrator
   booking:
     zone: Europe/Warsaw
     min-lead-time: PT1H
