@@ -32,6 +32,8 @@ servicedesk:
     admin-password: ${SERVICEDESK_ADMIN_PASSWORD:ChangeMe!123}
     admin-first-name: System
     admin-last-name: Administrator
+  cors:
+    allowed-origins: ${SERVICEDESK_CORS_ALLOWED_ORIGINS:http://localhost:5173}
   booking:
     zone: Europe/Warsaw
     min-lead-time: PT1H
