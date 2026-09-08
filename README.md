@@ -14,8 +14,8 @@ test suite that runs against a real PostgreSQL instance.
 | `identity` — accounts, JWT auth, refresh-token rotation, RBAC | done |
 | `common` — RFC 7807 error handling, auditing, OpenAPI | done |
 | `clients` — client profiles | scaffolded |
-| `catalog` — service offerings | planned |
-| `resources` — bookable resources | planned |
+| `catalog` — service categories & offerings, ADMIN-managed | done |
+| `resources` — bookable resources (rooms / stations / …) | done |
 | `staff` — employees, working hours, time off | planned |
 | `scheduling` — appointments, availability, overlap protection | planned |
 | `pricing` — loyalty tiers, time-based rules, quote calculation | planned |
