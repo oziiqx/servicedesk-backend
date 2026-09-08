@@ -1,0 +1,138 @@
+### ServiceDesk — sample requests
+### Works with the VS Code "REST Client" extension and the JetBrains HTTP client.
+### Run the app with the `demo` profile first so the referenced accounts and services exist.
+
+@host = http://localhost:8080
+
+### --- authentication -------------------------------------------------------
+
+# @name register
+POST {{host}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "ada@example.com",
+  "password": "Sup3rSecret",
+  "firstName": "Ada",
+  "lastName": "Kowalska",
+  "marketingConsent": true
+}
+
+###
+
+# @name loginClient
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{ "email": "ada@example.com", "password": "Sup3rSecret" }
+
+###
+
+@clientToken = {{loginClient.response.body.accessToken}}
+
+# @name loginAdmin
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{ "email": "admin@servicedesk.local", "password": "ChangeMe!123" }
+
+###
+
+@adminToken = {{loginAdmin.response.body.accessToken}}
+
+# @name loginEmployee
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{ "email": "olga@servicedesk.local", "password": "Sup3rSecret" }
+
+###
+
+@employeeToken = {{loginEmployee.response.body.accessToken}}
+
+### --- catalog & directory --------------------------------------------------
+
+GET {{host}}/api/v1/services
+Authorization: Bearer {{clientToken}}
+
+###
+
+GET {{host}}/api/v1/employees
+Authorization: Bearer {{clientToken}}
+
+### --- booking --------------------------------------------------------------
+
+GET {{host}}/api/v1/availability?employeeId=1&serviceCode=DIAG-STD&date=2026-09-14
+Authorization: Bearer {{clientToken}}
+
+###
+
+# @name book
+POST {{host}}/api/v1/appointments
+Authorization: Bearer {{clientToken}}
+Content-Type: application/json
+
+{
+  "employeeId": 1,
+  "services": [{ "serviceCode": "DIAG-STD", "quantity": 1 }],
+  "scheduledStart": "2026-09-14T08:00:00Z"
+}
+
+###
+
+@appointmentId = {{book.response.body.id}}
+
+GET {{host}}/api/v1/appointments/{{appointmentId}}
+Authorization: Bearer {{clientToken}}
+
+### --- lifecycle (assigned employee) --------------------------------------
+
+POST {{host}}/api/v1/appointments/{{appointmentId}}/transition?status=CONFIRMED
+Authorization: Bearer {{employeeToken}}
+
+###
+
+POST {{host}}/api/v1/appointments/{{appointmentId}}/transition?status=IN_PROGRESS
+Authorization: Bearer {{employeeToken}}
+
+###
+
+POST {{host}}/api/v1/appointments/{{appointmentId}}/transition?status=COMPLETED
+Authorization: Bearer {{employeeToken}}
+
+### --- billing --------------------------------------------------------------
+
+# @name invoices
+GET {{host}}/api/v1/invoices
+Authorization: Bearer {{clientToken}}
+
+###
+
+@invoiceId = {{invoices.response.body.0.id}}
+
+POST {{host}}/api/v1/invoices/{{invoiceId}}/payments
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "amount": 172.49, "method": "CARD", "reference": "auth-12345" }
+
+### --- pricing admin --------------------------------------------------------
+
+GET {{host}}/api/v1/admin/pricing-rules
+Authorization: Bearer {{adminToken}}
+
+###
+
+POST {{host}}/api/v1/admin/pricing-rules
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "code": "EARLY_BIRD",
+  "description": "Weekday mornings",
+  "adjustmentPercentage": -10.00,
+  "daysOfWeek": "1,2,3,4,5",
+  "timeFrom": "07:00",
+  "timeTo": "09:00",
+  "priority": 5
+}
