@@ -145,6 +145,9 @@ class SchedulingIntegrationTest extends AbstractIntegrationTest {
 
         ZonedDateTime target = ZonedDateTime.now(ZONE)
                 .plusDays(4).withHour(10).withMinute(0).withSecond(0).withNano(0);
+        while (target.getDayOfWeek() == DayOfWeek.SATURDAY || target.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            target = target.plusDays(1);
+        }
         setWorkingHours(employeeToken, target.getDayOfWeek());
 
         return new Fixture(employeeId, employeeToken, serviceCode, target.toInstant(), target.toLocalDate());

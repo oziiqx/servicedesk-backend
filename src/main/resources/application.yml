@@ -35,6 +35,8 @@ servicedesk:
     slot-granularity: PT15M
   pricing:
     max-total-discount-percentage: 25.00
+    loyalty-spend-window-months: 12
+  billing:
     invoice-tax-rate: 0.230
     invoice-payment-term-days: 14
 

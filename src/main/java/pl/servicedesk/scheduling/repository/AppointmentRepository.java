@@ -1,5 +1,6 @@
 package pl.servicedesk.scheduling.repository;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -77,4 +78,16 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                                                           @Param("start") Instant start,
                                                           @Param("end") Instant end,
                                                           @Param("statuses") Collection<AppointmentStatus> statuses);
+
+    long countByClientIdAndStatus(Long clientId, AppointmentStatus status);
+
+    @Query("""
+            select coalesce(sum(a.totalAmount), 0) from Appointment a
+            where a.client.id = :clientId
+              and a.status = :status
+              and a.scheduledStart >= :since
+            """)
+    BigDecimal sumTotalAmountByClientSince(@Param("clientId") Long clientId,
+                                           @Param("status") AppointmentStatus status,
+                                           @Param("since") Instant since);
 }

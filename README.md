@@ -18,7 +18,7 @@ test suite that runs against a real PostgreSQL instance.
 | `resources` — bookable resources (rooms / stations / …) | done |
 | `staff` — employees, weekly hours, time off, skill assignment | done |
 | `scheduling` — appointments, availability, overlap protection | done |
-| `pricing` — loyalty tiers, time-based rules, quote calculation | seam only |
+| `pricing` — loyalty tiers, time-based rules, quote calculation | done |
 | `billing` — invoices, payments | planned |
 
 ## Tech stack
@@ -60,6 +60,22 @@ and carry their own HTTP status and problem type; validation failures are return
 - Refresh tokens are stored **hashed**, single-use, and rotated on every `POST /api/v1/auth/refresh`.
   Re-using an already-rotated token revokes the whole token family (reuse-detection).
 - `POST /api/v1/auth/logout` revokes the presented refresh token.
+
+### Pricing
+
+Each booking is priced through an `AppointmentPricer`:
+
+```
+net       = Σ(service base price × quantity)   (snapshot on the appointment items)
+surcharge = net × Σ(matching PricingRule surcharge %)   e.g. +15% on weekends
+subtotal  = net + surcharge
+discount% = loyalty tier % + rule discounts, capped at servicedesk.pricing.max-total-discount-percentage
+total     = subtotal − subtotal × discount%
+```
+
+The loyalty tier is resolved from the client's completed-appointment count and 12-month spend
+(`LoyaltyTierResolver`); the tier name is snapshotted onto the appointment. Tiers and rules are
+seeded (`V7`) and managed under `/api/v1/admin/loyalty-tiers` and `/api/v1/admin/pricing-rules`.
 
 ## Data model
 
