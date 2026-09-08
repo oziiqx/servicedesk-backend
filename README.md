@@ -11,6 +11,9 @@ security with role-based access, non-trivial domain logic (calendar overlap prot
 dynamic pricing, an invoice state machine), RFC 7807 error handling, and a test suite that runs
 against a real PostgreSQL database via Testcontainers.
 
+A small React SPA that drives this API lives in
+[`servicedesk-frontend`](https://github.com/oziiqx/servicedesk-frontend).
+
 ## Modules
 
 | Module | Responsibility |
