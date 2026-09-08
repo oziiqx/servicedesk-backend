@@ -16,7 +16,7 @@ test suite that runs against a real PostgreSQL instance.
 | `clients` — client profiles | scaffolded |
 | `catalog` — service categories & offerings, ADMIN-managed | done |
 | `resources` — bookable resources (rooms / stations / …) | done |
-| `staff` — employees, working hours, time off | planned |
+| `staff` — employees, weekly hours, time off, skill assignment | done |
 | `scheduling` — appointments, availability, overlap protection | planned |
 | `pricing` — loyalty tiers, time-based rules, quote calculation | planned |
 | `billing` — invoices, payments | planned |

@@ -1,9 +1,15 @@
 package pl.servicedesk.support;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
@@ -64,5 +70,16 @@ public abstract class AbstractIntegrationTest {
         userRepository.saveAndFlush(user);
 
         return "Bearer " + jwtService.issueAccessToken(AuthenticatedUser.forLogin(user)).value();
+    }
+
+    protected String loginAndGetBearer(String email, String password) throws Exception {
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("email", email, "password", password))))
+                .andExpect(status().isOk())
+                .andReturn();
+        String accessToken = objectMapper.readTree(result.getResponse().getContentAsString())
+                .get("accessToken").asText();
+        return "Bearer " + accessToken;
     }
 }
