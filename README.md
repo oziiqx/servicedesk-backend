@@ -19,7 +19,7 @@ test suite that runs against a real PostgreSQL instance.
 | `staff` — employees, weekly hours, time off, skill assignment | done |
 | `scheduling` — appointments, availability, overlap protection | done |
 | `pricing` — loyalty tiers, time-based rules, quote calculation | done |
-| `billing` — invoices, payments | planned |
+| `billing` — invoices issued on completion, payments | done |
 
 ## Tech stack
 
@@ -76,6 +76,15 @@ total     = subtotal − subtotal × discount%
 The loyalty tier is resolved from the client's completed-appointment count and 12-month spend
 (`LoyaltyTierResolver`); the tier name is snapshotted onto the appointment. Tiers and rules are
 seeded (`V7`) and managed under `/api/v1/admin/loyalty-tiers` and `/api/v1/admin/pricing-rules`.
+
+### Billing
+
+Moving an appointment to `COMPLETED` publishes an `AppointmentCompleted` event; the `billing`
+module listens for it and issues an invoice (`net` = appointment total, plus
+`servicedesk.billing.invoice-tax-rate` VAT) in the same transaction — `scheduling` has no
+compile-time dependency on `billing`. Invoice numbers come from a database sequence
+(`INV-<year>-<seq>`). An invoice flips to `PAID` once recorded payments cover the gross amount
+(`POST /api/v1/invoices/{id}/payments`, admin only).
 
 ## Data model
 

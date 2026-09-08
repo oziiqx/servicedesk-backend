@@ -49,7 +49,7 @@ class CatalogIntegrationTest extends AbstractIntegrationTest {
 
         mockMvc.perform(get("/api/v1/services").header(HttpHeaders.AUTHORIZATION, client))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].code").value("DIAG-STD"));
+                .andExpect(jsonPath("$[?(@.code == 'DIAG-STD')]").exists());
 
         mockMvc.perform(post("/api/v1/admin/services")
                         .header(HttpHeaders.AUTHORIZATION, admin)

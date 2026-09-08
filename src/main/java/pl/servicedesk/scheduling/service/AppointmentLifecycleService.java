@@ -3,9 +3,11 @@ package pl.servicedesk.scheduling.service;
 import java.time.Clock;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.servicedesk.common.error.ResourceNotFoundException;
+import pl.servicedesk.scheduling.AppointmentCompleted;
 import pl.servicedesk.scheduling.domain.Appointment;
 import pl.servicedesk.scheduling.domain.AppointmentStatus;
 import pl.servicedesk.scheduling.repository.AppointmentRepository;
@@ -17,6 +19,7 @@ public class AppointmentLifecycleService {
     private final AppointmentRepository appointmentRepository;
     private final AppointmentPersister appointmentPersister;
     private final BookingPolicy bookingPolicy;
+    private final ApplicationEventPublisher eventPublisher;
     private final Clock clock;
 
     @Transactional(readOnly = true)
@@ -29,6 +32,9 @@ public class AppointmentLifecycleService {
     public Appointment changeStatus(Long appointmentId, AppointmentStatus target) {
         Appointment appointment = getById(appointmentId);
         appointment.transitionTo(target);
+        if (target == AppointmentStatus.COMPLETED) {
+            eventPublisher.publishEvent(new AppointmentCompleted(appointment.getId()));
+        }
         return appointment;
     }
 

@@ -17,8 +17,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import pl.servicedesk.clients.domain.Client;
 import pl.servicedesk.common.error.InvalidAppointmentStateException;
+import pl.servicedesk.scheduling.AppointmentCompleted;
 import pl.servicedesk.identity.domain.User;
 import pl.servicedesk.scheduling.domain.Appointment;
 import pl.servicedesk.scheduling.domain.AppointmentStatus;
@@ -42,12 +44,15 @@ class AppointmentLifecycleServiceTest {
     @Mock
     private BookingPolicy bookingPolicy;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     private AppointmentLifecycleService lifecycleService;
 
     @BeforeEach
     void setUp() {
-        lifecycleService = new AppointmentLifecycleService(
-                appointmentRepository, appointmentPersister, bookingPolicy, Clock.fixed(NOW, ZoneOffset.UTC));
+        lifecycleService = new AppointmentLifecycleService(appointmentRepository, appointmentPersister,
+                bookingPolicy, eventPublisher, Clock.fixed(NOW, ZoneOffset.UTC));
     }
 
     @Test
@@ -58,6 +63,17 @@ class AppointmentLifecycleServiceTest {
         lifecycleService.changeStatus(1L, AppointmentStatus.CONFIRMED);
 
         assertThat(appointment.getStatus()).isEqualTo(AppointmentStatus.CONFIRMED);
+    }
+
+    @Test
+    void completingAnAppointmentPublishesACompletionEvent() {
+        Appointment appointment = appointment(AppointmentStatus.IN_PROGRESS);
+        given(appointmentRepository.findWithDetailsById(1L)).willReturn(Optional.of(appointment));
+
+        lifecycleService.changeStatus(1L, AppointmentStatus.COMPLETED);
+
+        assertThat(appointment.getStatus()).isEqualTo(AppointmentStatus.COMPLETED);
+        verify(eventPublisher).publishEvent(new AppointmentCompleted(1L));
     }
 
     @Test
