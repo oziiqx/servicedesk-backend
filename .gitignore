@@ -17,3 +17,8 @@ target/
 
 .env
 .tooling/
+
+# stray npm artifacts (this is a Java project)
+node_modules/
+package.json
+package-lock.json

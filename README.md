@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/oziiqx/servicedesk-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/oziiqx/servicedesk-backend/actions/workflows/ci.yml)
 
-Backend for a generic services business — clients book time with a specialist, staff manage
+Backend for a generic services business - clients book time with a specialist, staff manage
 their schedules, prices are computed from loyalty and time-based rules, and completed
 appointments are invoiced.
 
@@ -31,7 +31,7 @@ A small React SPA that drives this API lives in
 ## Tech stack
 
 Java 21 · Spring Boot 3.3 · Spring Web / Data JPA / Security · PostgreSQL 16 · Flyway ·
-MapStruct · Lombok (sparingly — never `@Data` on entities) · JUnit 5 · Mockito · AssertJ ·
+MapStruct · Lombok (sparingly - never `@Data` on entities) · JUnit 5 · Mockito · AssertJ ·
 Testcontainers · Docker Compose · springdoc-openapi (Swagger UI at `/swagger-ui.html`).
 
 ## Architecture
@@ -47,7 +47,7 @@ web  ->  service  ->  repository  ->  domain
 - Controllers are thin: validate, map, delegate.
 - Business rules and transaction boundaries live in services.
 - Domain entities carry behaviour (state machines, invariants), not just fields.
-- Modules depend downwards only; `scheduling` never imports `billing` — completion is a domain
+- Modules depend downwards only; `scheduling` never imports `billing` - completion is a domain
   event.
 
 ### Error handling
@@ -62,16 +62,16 @@ and carry their own status and `type`; validation failures include a structured 
 - `POST /api/v1/auth/login` returns a short-lived HS256 access token and an opaque refresh token.
 - Refresh tokens are stored **hashed**, single-use, and rotated on every `POST /api/v1/auth/refresh`;
   replaying a rotated token revokes the whole token family.
-- `AdminBootstrap` creates one `ADMIN` account on first start (`servicedesk.bootstrap.*`) — it is
+- `AdminBootstrap` creates one `ADMIN` account on first start (`servicedesk.bootstrap.*`) - it is
   the only way to get an admin, and it logs a warning while the default password is in use.
 
-### Scheduling — overlap protection
+### Scheduling - overlap protection
 
 1. Pessimistic lock (`SELECT … FOR UPDATE`) on the employee and resource rows during the booking
    critical section, so concurrent bookings for the same provider serialize and the loser gets a
    friendly `409`.
 2. A PostgreSQL `EXCLUDE USING gist` constraint on `appointments` (needs the **`btree_gist`**
-   extension) as the backstop — overlapping `tstzrange` values for the same employee or resource
+   extension) as the backstop - overlapping `tstzrange` values for the same employee or resource
    are rejected by the database and translated to `409 slot-unavailable`.
 3. Optimistic locking (`@Version`) for reschedule and status changes.
 
@@ -123,7 +123,7 @@ erDiagram
     invoices     ||--o{ payments : "settled by"
 ```
 
-`loyalty_tiers` and `pricing_rules` are standalone configuration tables — the resolved tier
+`loyalty_tiers` and `pricing_rules` are standalone configuration tables - the resolved tier
 name and adjustment amounts are snapshotted onto each `appointment`, not linked by a foreign key.
 
 ## Running the app
@@ -156,7 +156,7 @@ With the `demo` profile every seeded account uses the password `Sup3rSecret`
 `admin@servicedesk.local` / `ChangeMe!123` unless overridden.
 
 > **Production note:** the database user must be able to `CREATE EXTENSION btree_gist`, or the
-> extension must be pre-installed — migration `V6` needs it for the overlap constraint.
+> extension must be pre-installed - migration `V6` needs it for the overlap constraint.
 
 ## Build and test
 
